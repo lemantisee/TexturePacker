@@ -20,14 +20,17 @@ qt_standard_project_setup()
 qt_add_executable(${PROJECT_NAME}
     main.cpp
     ImageProvider.h ImageProvider.cpp
-    resources/DropImageIcon.png
     res.qrc
+    ImagePreview.qml
+    FlatButton.qml
+    Compressor.h Compressor.cpp
+    BusyBar.qml
 )
 
 qt_add_qml_module(${PROJECT_NAME}
     URI TexturePacker
     VERSION 1.0
-    QML_FILES Main.qml
+    QML_FILES Main.qml ImagePreview.qml FlatButton.qml BusyBar.qml
 )
 
 add_subdirectory(Ext)
@@ -50,8 +53,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Quick
-#    NMLogger
     stb
+    nvtt3
 )
 target_compile_options(${PROJECT_NAME} PUBLIC
     /permissive-    # standards conformance mode

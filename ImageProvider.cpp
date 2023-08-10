@@ -16,13 +16,7 @@ ImageProvider::ImageProvider()
 
 QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    QUrl url(id);
-    if (!url.isValid()) {
-        qCritical("Unable to find image: %s", qUtf8Printable(id));
-        return {};
-    }
-
-    QString filePath = url.toLocalFile();
+    QString filePath = id;
 
     if (!QFile::exists(filePath)) {
         qCritical("Unable to find image: %s", qUtf8Printable(filePath));
@@ -44,9 +38,6 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
                   qUtf8Printable(filePath));
         return {};
     }
-
-    qDebug() << "Load image with width " << width << " height " << height << " channels "
-             << channels;
 
     if (width > 2048 || height > 2048) {
         QSize scaledSize = getDownscaleSize(width, height);

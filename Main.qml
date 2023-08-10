@@ -1,4 +1,4 @@
-import QtQuick
+import QtCore
 import QtQuick.Window
 import QtQuick 2.0
 import QtQuick.Controls 2.15
@@ -9,7 +9,7 @@ Window {
     width: 640
     height: 480
     visible: true
-    color: "#3b3b3b"
+    color: "#343434"
     title: qsTr("Texture Packer")
 
     ColumnLayout
@@ -28,36 +28,16 @@ Window {
             Layout.leftMargin: 5
             Layout.topMargin: 5
 
-            Button {
+            FlatButton {
                 id: openFileButton
                 text: qsTr("Open image")
-                onClicked: fileDialog.open()
-                flat: true
-                onHoveredChanged: {
-                    buttonRect.color = openFileButton.hovered ? "#2b2b2b" : "#343434"
-                }
-                onPressed: {
-                    buttonRect.color = "#343434"
-                }
+                onClicked: openFileDialog.open()
+            }
 
-                onReleased: {
-                    buttonRect.color = "#343434"
-                }
-
-                background: Rectangle {
-                    id: buttonRect
-                    color: "#343434"
-                    radius: 4
-                }
-
-                contentItem: Text {
-                        text: openFileButton.text
-                        font: openFileButton.font
-                        color: openFileButton.pressed ? "#0091ea" : "#989898"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        elide: Text.ElideRight
-                    }
+            FlatButton {
+                id: compressImageButton
+                text: qsTr("Compress")
+                onClicked: saveFileDialog.open()
             }
 
             Label {
@@ -67,36 +47,82 @@ Window {
             }
         }
 
-        Image {
+        ImagePreview {
             id: image
-            asynchronous: true
-            fillMode: Image.PreserveAspectFit
-            source: "/resources/DropImageIcon.png"
-
             Layout.fillHeight: true
             Layout.fillWidth: true
+            onImageOpened: function(filepath) {
+                imageName.text = filepath
+                compressStatusBar.visible = false;
+            }
 
-            DropArea {
-                id: fileDrop
-                anchors.fill: parent
-                onDropped: function(drop) {
-                    if(drop.hasUrls) {
-                        image.source = "image://base/" + drop.urls[0]
-                        imageName.text = drop.urls[0]
-                    }
+            Rectangle {
+                id: compressStatusBar
+                anchors.topMargin: 5
+                anchors.leftMargin: 5
+                anchors.top: image.top
+                anchors.left: image.left
+
+                width: 130
+                height: 30
+                radius: 5
+                color: "#464646"
+                opacity: 0.7
+                visible: false
+
+                BusyBar {
+                    id: compressBusyBar
+                    anchors.leftMargin: 5
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    running: true
+                    implicitWidth: 26
+                    implicitHeight: 26
+                }
+
+                Text {
+                    id: compressLabel
+                    text: qsTr("Compressing...")
+                    anchors.leftMargin: 5 + compressBusyBar.width + 5
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: "#989898"
                 }
             }
         }
-
     }
 
+    FileDialog {
+        id: openFileDialog
+        fileMode: FileDialog.OpenFile
+        onAccepted: {
+            image.openImage(selectedFile)
+            imageName.text = selectedFile
+        }
+    }
 
     FileDialog {
-        id: fileDialog
-        currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
+        id: saveFileDialog
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "dds"
+        nameFilters: ["DDS file (*.dds)"]
         onAccepted: {
-            image.source = "image://base/" + selectedFile
-            imageName.text = selectedFile
+            var filepath = selectedFile.toString()
+            filepath = filepath.replace('file:///', '')
+            compressStatusBar.visible = true;
+            textureCompressor.startCompress(imageName.text, filepath)
+        }
+    }
+
+    Connections {
+        target: textureCompressor
+        function onError(error) {
+            compressStatusBar.visible = false;
+        }
+
+        function onFinished() {
+            console.log("Compressed")
+            compressStatusBar.visible = false;
         }
     }
 }
