@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>resources/DropImageIcon.png</file>
+        <file>resources/done.png</file>
     </qresource>
 </RCC>

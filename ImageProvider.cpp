@@ -32,7 +32,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
         return {};
     }
 
-    if (channels != 3 && channels != 4) {
+    if (channels != 3 && channels != 4 && channels != 1) {
         qCritical("Image has %i channels. Supports only 3 and 4 channels: %s",
                   channels,
                   qUtf8Printable(filePath));
@@ -96,7 +96,20 @@ QSize ImageProvider::getDownscaleSize(uint32_t width, uint32_t height) const
 
 QImage ImageProvider::createImage(uint8_t *pixels, QSize size, int channels) const
 {
-    QImage::Format format = channels == 4 ? QImage::Format_RGBA8888 : QImage::Format_RGB888;
+    QImage::Format format;
+    switch (channels) {
+    case 1:
+        format = QImage::Format_Grayscale8;
+        break;
+    case 3:
+        format = QImage::Format_RGB888;
+        break;
+    case 4:
+        format = QImage::Format_RGBA8888;
+        break;
+    default:
+        break;
+    }
 
     QImage image(pixels, size.width(), size.height(), format);
     if (image.isNull()) {
