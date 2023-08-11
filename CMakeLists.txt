@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(BINDIR "${CMAKE_CURRENT_BINARY_DIR}/bin")
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Widgets)
 
 qt_standard_project_setup()
 
@@ -25,6 +25,8 @@ qt_add_executable(${PROJECT_NAME}
     FlatButton.qml
     Compressor.h Compressor.cpp
     BusyBar.qml
+    FileDialogItem.h FileDialogItem.cpp
+    ImageFilepath.h ImageFilepath.cpp
 )
 
 qt_add_qml_module(${PROJECT_NAME}
@@ -51,8 +53,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE Qt6::Quick
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Qt6::Quick
+    Qt6::Widgets
     stb
     nvtt3
 )

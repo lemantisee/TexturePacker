@@ -8,8 +8,7 @@ Item {
     property string filepath: ""
 
     function openImage(fileUrl) {
-        filepath = fileUrl
-        filepath = filepath.replace('file:///', '')
+        filepath = imageFilepath.toFilePath(fileUrl)
         userImage.source = "image://base/" + filepath
         backgroundImageArea.visible = false
         loadImageBusyBar.visible = true

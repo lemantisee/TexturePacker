@@ -13,6 +13,21 @@ Compressor::Compressor(QObject *parent)
 
 void Compressor::startCompress(const QString &sourceFilepath, const QString &targetFilepath)
 {
+    if (sourceFilepath.isEmpty()) {
+        qCritical("Empty image file path");
+        return;
+    }
+
+    if (targetFilepath.isEmpty()) {
+        qCritical("Empty target filepath");
+        return;
+    }
+
+    if (!QFileInfo::exists(sourceFilepath)) {
+        qCritical("Unable to find %s file", qUtf8Printable(sourceFilepath));
+        return;
+    }
+
     qDebug() << "Source filepath " << sourceFilepath << " target filepath " << targetFilepath;
 
     auto future = QtConcurrent::run([sourceFilepath, targetFilepath] {

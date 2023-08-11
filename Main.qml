@@ -1,9 +1,8 @@
-import QtCore
 import QtQuick.Window
 import QtQuick 2.0
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs
 import QtQuick.Layouts
+import FileDialogItem 1.0
 
 Window {
     width: 640
@@ -92,25 +91,22 @@ Window {
         }
     }
 
-    FileDialog {
+    FileDialogItem {
         id: openFileDialog
-        fileMode: FileDialog.OpenFile
         onAccepted: {
-            image.openImage(selectedFile)
-            imageName.text = selectedFile
+            image.openImage(fileUrl)
         }
     }
 
-    FileDialog {
+    FileDialogItem {
         id: saveFileDialog
-        fileMode: FileDialog.SaveFile
-        defaultSuffix: "dds"
+        dialogType: FileDialogItem.SaveDialog
+        filename: imageFilepath.getSaveFilename(imageName.text, "dds")
         nameFilters: ["DDS file (*.dds)"]
         onAccepted: {
-            var filepath = selectedFile.toString()
-            filepath = filepath.replace('file:///', '')
+            var filepath = imageFilepath.toFilePath(fileUrl)
             compressStatusBar.visible = true;
-            textureCompressor.startCompress(imageName.text, filepath)
+            textureCompressor.startCompress(imageName.text, imageFilepath.toFilePath(fileUrl))
         }
     }
 

@@ -1,20 +1,26 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
 #include "ImageProvider.h"
 #include "Compressor.h"
+#include "FileDialogItem.h"
+#include "ImageFilepath.h"
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
+
+    Compressor compresser;
+    ImageFilepath imagePath;
+
+    qmlRegisterType<FileDialogItem>("FileDialogItem", 1, 0, "FileDialogItem");
 
     QQmlApplicationEngine engine;
 
     engine.addImageProvider(QLatin1String("base"), new ImageProvider);
-
-    Compressor compresser;
     engine.rootContext()->setContextProperty("textureCompressor", &compresser);
+    engine.rootContext()->setContextProperty("imageFilepath", &imagePath);
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
         &app, []() { QCoreApplication::exit(-1); },
