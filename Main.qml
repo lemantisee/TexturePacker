@@ -52,97 +52,15 @@ Window {
             Layout.fillWidth: true
             onImageOpened: function(filepath) {
                 imageName.text = filepath
-                compressStatusBar.visible = false;
-                compressCompleteBar.visible = false
+                statusMessage.hide()
             }
 
-            Rectangle {
-                id: compressStatusBar
+            StatusMessage {
+                id: statusMessage
                 anchors.topMargin: 5
                 anchors.leftMargin: 5
                 anchors.top: image.top
                 anchors.left: image.left
-
-                width: 130
-                height: 30
-                radius: 5
-                color: "#464646"
-                opacity: visible ? 0.7 : 0.0
-                visible: false
-
-                Behavior on opacity { PropertyAnimation { duration: 300 } }
-
-                function show() {
-                    visible = true;
-                    showTimer.stop();
-                    showTimer.start();
-                }
-
-                BusyBar {
-                    id: compressBusyBar
-                    anchors.leftMargin: 5
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    running: true
-                    implicitWidth: 26
-                    implicitHeight: 26
-                }
-
-                Text {
-                    id: compressLabel
-                    text: qsTr("Compressing...")
-                    anchors.leftMargin: 5 + compressBusyBar.width + 5
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: "#989898"
-                }
-            }
-
-            Rectangle {
-                id: compressCompleteBar
-                anchors.topMargin: 5
-                anchors.leftMargin: 5
-                anchors.top: image.top
-                anchors.left: image.left
-
-                width: 105
-                height: 30
-                radius: 5
-                color: "#464646"
-                opacity: showTimer.running ? 0.7 : 0.0
-                visible: false
-
-                function show() {
-                    visible = true;
-                    showTimer.stop();
-                    showTimer.start();
-                }
-
-                Behavior on opacity { PropertyAnimation { duration: 300 } }
-
-                Image {
-                    id: doneLogo
-                    anchors.leftMargin: 5
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    source: "/resources/done.png"
-                    width: 19
-                    height: 15
-                }
-
-                Text {
-                    id: completeLabel
-                    text: qsTr("Compressed")
-                    anchors.leftMargin: 5 + doneLogo.width + 3
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: "#989898"
-                }
-
-                Timer {
-                    id: showTimer
-                    interval: 3000
-                }
             }
         }
     }
@@ -161,8 +79,7 @@ Window {
         nameFilters: ["DDS file (*.dds)"]
         onAccepted: {
             var filepath = imageFilepath.toFilePath(fileUrl)
-            compressStatusBar.show()
-            compressCompleteBar.visible = false
+            statusMessage.showCompressing()
             textureCompressor.startCompress(imageName.text, imageFilepath.toFilePath(fileUrl))
         }
     }
@@ -170,14 +87,12 @@ Window {
     Connections {
         target: textureCompressor
         function onError(error) {
-            compressStatusBar.visible = false;
-            compressCompleteBar.visible = false
+            statusMessage.hide()
         }
 
         function onFinished() {
             console.log("Compressed")
-            compressStatusBar.visible = false;
-            compressCompleteBar.show()
+            statusMessage.showComplete()
         }
     }
 }
