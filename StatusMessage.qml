@@ -22,8 +22,8 @@ Item {
         id: compressStatusBar
         anchors.topMargin: 5
         anchors.leftMargin: 5
-        anchors.top: image.top
-        anchors.left: image.left
+        anchors.top: parent.top
+        anchors.left: parent.left
 
         width: 130
         height: 30
@@ -58,8 +58,8 @@ Item {
         id: compressCompleteBar
         anchors.topMargin: 5
         anchors.leftMargin: 5
-        anchors.top: image.top
-        anchors.left: image.left
+        anchors.top: parent.top
+        anchors.left: parent.left
 
         width: 105
         height: 30

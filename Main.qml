@@ -3,6 +3,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import FileDialogItem 1.0
+import Compressor 1.0
 
 Window {
     width: 640
@@ -17,41 +18,31 @@ Window {
         anchors.fill: parent
         anchors.rightMargin: 5
         anchors.leftMargin: 5
+        anchors.topMargin: 5
         anchors.bottomMargin: 5
 
-        RowLayout {
-            id: toolBarLayout
-            spacing: 6
+        FileToolbar {
+            id: fileToobar
 
             Layout.fillWidth: true
-            Layout.leftMargin: 5
-            Layout.topMargin: 5
 
-            FlatButton {
-                id: openFileButton
-                text: qsTr("Open image")
-                onClicked: openFileDialog.open()
+            onOpened: function(fileUrl) {
+                image.openImage(fileUrl)
             }
+        }
 
-            FlatButton {
-                id: compressImageButton
-                text: qsTr("Compress")
-                onClicked: saveFileDialog.open()
-            }
-
-            Label {
-                id: imageName
-                text: ""
-                color: "#989898"
-            }
+        CompressionToolbar {
+            id: compressionToolbar
+            compressor: textureCompressor
+            Layout.fillWidth: true
         }
 
         ImagePreview {
             id: image
             Layout.fillHeight: true
             Layout.fillWidth: true
-            onImageOpened: function(filepath) {
-                imageName.text = filepath
+            onImageOpened: function(fileUrl) {
+                compressionToolbar.sourceFileUrl = fileUrl
                 statusMessage.hide()
             }
 
@@ -65,34 +56,18 @@ Window {
         }
     }
 
-    FileDialogItem {
-        id: openFileDialog
-        onAccepted: {
-            image.openImage(fileUrl)
-        }
-    }
-
-    FileDialogItem {
-        id: saveFileDialog
-        dialogType: FileDialogItem.SaveDialog
-        filename: imageFilepath.getSaveFilename(imageName.text, "dds")
-        nameFilters: ["DDS file (*.dds)"]
-        onAccepted: {
-            var filepath = imageFilepath.toFilePath(fileUrl)
+    Compressor {
+        id: textureCompressor
+        onStarted: function() {
             statusMessage.showCompressing()
-            textureCompressor.startCompress(imageName.text, imageFilepath.toFilePath(fileUrl))
-        }
-    }
-
-    Connections {
-        target: textureCompressor
-        function onError(error) {
-            statusMessage.hide()
         }
 
-        function onFinished() {
-            console.log("Compressed")
+        onFinished: function() {
             statusMessage.showComplete()
+        }
+
+        onError: function(error) {
+            statusMessage.hide()
         }
     }
 }

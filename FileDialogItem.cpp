@@ -35,6 +35,18 @@ void FileDialogItem::setFileUrl(QUrl fileUrl)
     if (mFileUrl != fileUrl) {
         mFileUrl = fileUrl;
         emit fileUrlChanged();
+
+        switch (mType) {
+        case OpenDialog:
+            mOpenFolder = QFileInfo(fileUrl.toLocalFile()).dir().absolutePath();
+            break;
+        case SaveDialog:
+            mSaveFolder = QFileInfo(fileUrl.toLocalFile()).dir().absolutePath();
+            break;
+        default:
+            break;
+        }
+
     }
 }
 
@@ -92,11 +104,14 @@ void FileDialogItem::open()
 
     switch (mType) {
     case OpenDialog:
-        fileUrl = QUrl::fromLocalFile(QFileDialog::getOpenFileName(nullptr, mTitle, {}, fileFilter));
+        fileUrl = QUrl::fromLocalFile(
+            QFileDialog::getOpenFileName(nullptr, mTitle, mOpenFolder, fileFilter));
         break;
     case SaveDialog:
-        fileUrl = QUrl::fromLocalFile(
-            QFileDialog::getSaveFileName(nullptr, mTitle, mFilename, fileFilter));
+        fileUrl = QUrl::fromLocalFile(QFileDialog::getSaveFileName(nullptr,
+                                                                   mTitle,
+                                                                   mSaveFolder + "/" + mFilename,
+                                                                   fileFilter));
         break;
     default:
         break;

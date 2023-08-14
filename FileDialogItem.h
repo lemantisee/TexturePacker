@@ -52,4 +52,6 @@ private:
     QString mTitle;
     QStringList mNameFilters;
     Type mType = OpenDialog;
+    QString mOpenFolder;
+    QString mSaveFolder;
 };

@@ -11,7 +11,9 @@ Compressor::Compressor(QObject *parent)
     connect(&mWatcher, &QFutureWatcher<QString>::finished, this, &Compressor::onFinished);
 }
 
-void Compressor::startCompress(const QString &sourceFilepath, const QString &targetFilepath)
+void Compressor::startCompress(const QString &sourceFilepath,
+                               const QString &targetFilepath,
+                               CompressionType compression)
 {
     if (sourceFilepath.isEmpty()) {
         qCritical("Empty image file path");
@@ -30,7 +32,7 @@ void Compressor::startCompress(const QString &sourceFilepath, const QString &tar
 
     qDebug() << "Source filepath " << sourceFilepath << " target filepath " << targetFilepath;
 
-    auto future = QtConcurrent::run([sourceFilepath, targetFilepath] {
+    auto future = QtConcurrent::run([sourceFilepath, targetFilepath, compression] {
         nvtt::Surface image;
         if (!image.load(sourceFilepath.toStdString().c_str())) {
             qCritical("Unable to open %s file", qUtf8Printable(sourceFilepath));
@@ -39,10 +41,22 @@ void Compressor::startCompress(const QString &sourceFilepath, const QString &tar
 
         nvtt::Context context(true);
         nvtt::CompressionOptions compressionOptions;
-        compressionOptions.setFormat(nvtt::Format_BC7);
+
+        switch (compression) {
+        case CompressionBC4:
+            compressionOptions.setFormat(nvtt::Format_BC4);
+            break;
+        case CompressionBC7:
+            compressionOptions.setFormat(nvtt::Format_BC7);
+            break;
+        default:
+            qCritical("Unknown compression format %i", compression);
+            return QString("Unknown compression format");
+        }
 
         nvtt::OutputOptions outputOptions;
         outputOptions.setFileName(targetFilepath.toStdString().c_str());
+        outputOptions.setContainer(nvtt::Container_DDS10);
 
         if (!context.outputHeader(image, 1, compressionOptions, outputOptions)) {
             qCritical("Writing the DDS header failed");
@@ -58,6 +72,8 @@ void Compressor::startCompress(const QString &sourceFilepath, const QString &tar
     });
 
     mWatcher.setFuture(future);
+
+    emit started();
 }
 
 void Compressor::onFinished()

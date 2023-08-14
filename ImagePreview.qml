@@ -5,11 +5,11 @@ Item {
 
     id: root
     signal imageOpened(url filepath)
-    property string filepath: ""
+    property url userFileUrl: ""
 
     function openImage(fileUrl) {
-        filepath = imageFilepath.toFilePath(fileUrl)
-        userImage.source = "image://base/" + filepath
+        userFileUrl = fileUrl
+        userImage.source = "image://base/" + imageFilepath.toFilePath(fileUrl)
         backgroundImageArea.visible = false
         loadImageBusyBar.visible = true
         loadImageBusyBar.running = true
@@ -44,7 +44,7 @@ Item {
                 userImage.visible = true
                 loadImageBusyBar.visible = false
                 loadImageBusyBar.running = false
-                root.imageOpened(filepath)
+                root.imageOpened(userFileUrl)
             }
 
             if (userImage.status == Image.Error) {

@@ -28,12 +28,23 @@ qt_add_executable(${PROJECT_NAME}
     FileDialogItem.h FileDialogItem.cpp
     ImageFilepath.h ImageFilepath.cpp
     StatusMessage.qml
+    FileToolbar.qml
+    FlatComboBox.qml
+    CompressionToolbar.qml
 )
 
 qt_add_qml_module(${PROJECT_NAME}
     URI TexturePacker
     VERSION 1.0
-    QML_FILES Main.qml ImagePreview.qml FlatButton.qml BusyBar.qml StatusMessage.qml
+    QML_FILES
+    Main.qml
+    ImagePreview.qml
+    FlatButton.qml
+    BusyBar.qml
+    StatusMessage.qml
+    FileToolbar.qml
+    FlatComboBox.qml
+    CompressionToolbar.qml
 )
 
 add_subdirectory(Ext)

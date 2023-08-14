@@ -6,6 +6,7 @@
 #include "Compressor.h"
 #include "FileDialogItem.h"
 #include "ImageFilepath.h"
+#include "Compressor.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,11 +16,12 @@ int main(int argc, char *argv[])
     ImageFilepath imagePath;
 
     qmlRegisterType<FileDialogItem>("FileDialogItem", 1, 0, "FileDialogItem");
+    qmlRegisterType<Compressor>("Compressor", 1, 0, "Compressor");
 
     QQmlApplicationEngine engine;
 
     engine.addImageProvider(QLatin1String("base"), new ImageProvider);
-    engine.rootContext()->setContextProperty("textureCompressor", &compresser);
+//    engine.rootContext()->setContextProperty("textureCompressor", &compresser);
     engine.rootContext()->setContextProperty("imageFilepath", &imagePath);
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
