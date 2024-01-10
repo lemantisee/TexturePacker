@@ -33,7 +33,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
     }
 
     if (channels != 3 && channels != 4 && channels != 1) {
-        qCritical("Image has %i channels. Supports only 3 and 4 channels: %s",
+        qCritical("Image has %i channels. Supports only 1, 3 and 4 channels: %s",
                   channels,
                   qUtf8Printable(filePath));
         return {};

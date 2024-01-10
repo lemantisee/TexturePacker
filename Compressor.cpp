@@ -3,8 +3,6 @@
 #include <QDebug>
 #include <QFileInfo>
 
-#include "nvtt/nvtt.h"
-
 Compressor::Compressor(QObject *parent)
     : QObject{parent}
 {
@@ -13,7 +11,8 @@ Compressor::Compressor(QObject *parent)
 
 void Compressor::startCompress(const QString &sourceFilepath,
                                const QString &targetFilepath,
-                               CompressionType compression)
+                               CompressionType compression,
+                               MipmapType mipmapType)
 {
     if (sourceFilepath.isEmpty()) {
         qCritical("Empty image file path");
@@ -30,9 +29,7 @@ void Compressor::startCompress(const QString &sourceFilepath,
         return;
     }
 
-    qDebug() << "Source filepath " << sourceFilepath << " target filepath " << targetFilepath;
-
-    auto future = QtConcurrent::run([sourceFilepath, targetFilepath, compression] {
+    auto future = QtConcurrent::run([this, sourceFilepath, targetFilepath, compression, mipmapType] {
         nvtt::Surface image;
         if (!image.load(sourceFilepath.toStdString().c_str())) {
             qCritical("Unable to open %s file", qUtf8Printable(sourceFilepath));
@@ -58,9 +55,18 @@ void Compressor::startCompress(const QString &sourceFilepath,
         outputOptions.setFileName(targetFilepath.toStdString().c_str());
         outputOptions.setContainer(nvtt::Container_DDS10);
 
-        if (!context.outputHeader(image, 1, compressionOptions, outputOptions)) {
+        int numMipmaps = 1;
+        if (mipmapType != MipmapNone) {
+            numMipmaps = image.countMipmaps();
+        }
+
+        if (!context.outputHeader(image, numMipmaps, compressionOptions, outputOptions)) {
             qCritical("Writing the DDS header failed");
             return QString("Writing the DDS header failed");
+        }
+
+        if (mipmapType != MipmapNone) {
+            return compressWithMipmaps(context, image, compressionOptions, outputOptions, mipmapType);
         }
 
         if (!context.compress(image, 0, 0, compressionOptions, outputOptions)) {
@@ -85,4 +91,46 @@ void Compressor::onFinished()
     }
 
     emit error(res);
+}
+
+nvtt::MipmapFilter Compressor::getFilter(MipmapType mipmapType) const
+{
+    switch (mipmapType) {
+    case MipmapBox:
+        return nvtt::MipmapFilter_Box;
+    case MipmapTriangle:
+        return nvtt::MipmapFilter_Triangle;
+    case MipmapKaiser:
+        return nvtt::MipmapFilter_Kaiser;
+    default:
+        qCritical("Unknown mipmap filter type");
+        break;
+    }
+
+    return nvtt::MipmapFilter_Box;
+}
+
+QString Compressor::compressWithMipmaps(nvtt::Context &context,
+                                        nvtt::Surface &image,
+                                        const nvtt::CompressionOptions &compressionOptions,
+                                        const nvtt::OutputOptions &outputOptions,
+                                        MipmapType mipmapType)
+{
+    const int numMipmaps = image.countMipmaps();
+
+    for (int mip = 0; mip < numMipmaps; mip++) {
+
+        if (!context.compress(image, 0, mip, compressionOptions, outputOptions)) {
+            qCritical("Compressing and writing the DDS file failed");
+            return QString("Compressing and writing the DDS file failed");
+        }
+
+        if (mip == numMipmaps - 1) {
+            break;
+        }
+
+        image.buildNextMipmap(getFilter(mipmapType));
+    }
+
+    return {};
 }
