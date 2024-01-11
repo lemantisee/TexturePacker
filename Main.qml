@@ -42,7 +42,7 @@ Window {
             Layout.fillHeight: true
             Layout.fillWidth: true
             onImageOpened: function(fileUrl) {
-                compressionToolbar.sourceFileUrl = fileUrl
+                compressionToolbar.setSourceFileUrl(fileUrl)
                 statusMessage.hide()
             }
 

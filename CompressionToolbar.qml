@@ -8,6 +8,7 @@ Item {
     id: root
     implicitHeight: toolBarLayout.height
 
+    property string saveFilepath
     property url sourceFileUrl
     required property Compressor compressor
 
@@ -18,6 +19,12 @@ Item {
     readonly property string boxLabel: "Box"
     readonly property string triangleLabel: "Triangle"
     readonly property string kaiserLabel: "Kaiser"
+
+    function setSourceFileUrl(url) {
+        sourceFileUrl = url
+        saveFilepath = imageFilepath.getParentPath(url) + "/"
+                + imageFilepath.getSaveFilename(url, "dds")
+    }
 
     function getCompressionType() {
 
@@ -78,14 +85,13 @@ Item {
         FlatButton {
             id: compressImageButton
             text: qsTr("Compress")
-            onClicked: saveFileDialog.open()
+            onClicked: saveFileDialog.open(saveFilepath)
         }
     }
 
     FileDialogItem {
         id: saveFileDialog
         dialogType: FileDialogItem.SaveDialog
-        filename: imageFilepath.getSaveFilename(sourceFileUrl, "dds")
         nameFilters: ["DDS file (*.dds)"]
         onAccepted: {
 

@@ -18,3 +18,9 @@ QString ImageFilepath::toFilePath(const QUrl &url) const
 {
     return url.toLocalFile();
 }
+
+QString ImageFilepath::getParentPath(const QUrl &url) const
+{
+    QFileInfo file(url.toLocalFile());
+    return file.path();
+}

@@ -21,10 +21,6 @@ public:
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged)
     QUrl fileUrl() const;
 
-    Q_PROPERTY(QString filename READ filename WRITE setFilename NOTIFY filenameChanged)
-    QString filename() const;
-    void setFilename(QString filename);
-
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
     QString title() const;
     void setTitle(QString title);
@@ -33,11 +29,10 @@ public:
     QStringList nameFilters() const;
     void setNameFilters(QStringList nameFilters);
 
-    Q_INVOKABLE void open();
+    Q_INVOKABLE void open(QString filepath);
 
 signals:
     void fileUrlChanged();
-    void filenameChanged();
     void titleChanged();
     void nameFiltersChanged();
     void accepted();
@@ -48,10 +43,7 @@ private:
     void setFileUrl(QUrl fileUrl);
 
     QUrl mFileUrl;
-    QString mFilename;
     QString mTitle;
     QStringList mNameFilters;
     Type mType = OpenDialog;
-    QString mOpenFolder;
-    QString mSaveFolder;
 };

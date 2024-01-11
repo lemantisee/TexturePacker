@@ -10,5 +10,6 @@ public:
     explicit ImageFilepath(QObject *parent = nullptr);
     Q_INVOKABLE QString getSaveFilename(const QString &filepath, const QString &extension) const;
     Q_INVOKABLE QString toFilePath(const QUrl &url) const;
+    Q_INVOKABLE QString getParentPath(const QUrl &url) const;
 };
 

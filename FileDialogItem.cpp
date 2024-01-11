@@ -35,31 +35,6 @@ void FileDialogItem::setFileUrl(QUrl fileUrl)
     if (mFileUrl != fileUrl) {
         mFileUrl = fileUrl;
         emit fileUrlChanged();
-
-        switch (mType) {
-        case OpenDialog:
-            mOpenFolder = QFileInfo(fileUrl.toLocalFile()).dir().absolutePath();
-            break;
-        case SaveDialog:
-            mSaveFolder = QFileInfo(fileUrl.toLocalFile()).dir().absolutePath();
-            break;
-        default:
-            break;
-        }
-
-    }
-}
-
-QString FileDialogItem::filename() const
-{
-    return mFilename;
-}
-
-void FileDialogItem::setFilename(QString filename)
-{
-    if (mFilename != filename) {
-        mFilename = filename;
-        emit filenameChanged();
     }
 }
 
@@ -89,7 +64,7 @@ void FileDialogItem::setNameFilters(QStringList nameFilters)
     }
 }
 
-void FileDialogItem::open()
+void FileDialogItem::open(QString filepath)
 {
     QString fileFilter;
     for (const QString &filter : mNameFilters) {
@@ -105,13 +80,11 @@ void FileDialogItem::open()
     switch (mType) {
     case OpenDialog:
         fileUrl = QUrl::fromLocalFile(
-            QFileDialog::getOpenFileName(nullptr, mTitle, mOpenFolder, fileFilter));
+            QFileDialog::getOpenFileName(nullptr, mTitle, filepath, fileFilter));
         break;
     case SaveDialog:
-        fileUrl = QUrl::fromLocalFile(QFileDialog::getSaveFileName(nullptr,
-                                                                   mTitle,
-                                                                   mSaveFolder + "/" + mFilename,
-                                                                   fileFilter));
+        fileUrl = QUrl::fromLocalFile(
+            QFileDialog::getSaveFileName(nullptr, mTitle, filepath, fileFilter));
         break;
     default:
         break;
