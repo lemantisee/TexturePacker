@@ -18,6 +18,8 @@ Item {
         compressStatusBar.visible = false
     }
 
+    readonly property real barOpacity: 0.9
+
     Rectangle {
         id: compressStatusBar
         anchors.topMargin: 5
@@ -29,7 +31,7 @@ Item {
         height: 30
         radius: 5
         color: "#464646"
-        opacity: visible ? 0.7 : 0.0
+        opacity: visible ? barOpacity : 0.0
         visible: false
 
         Behavior on opacity { PropertyAnimation { duration: 300 } }
@@ -65,7 +67,7 @@ Item {
         height: 30
         radius: 5
         color: "#464646"
-        opacity: showTimer.running ? 0.7 : 0.0
+        opacity: showTimer.running ? barOpacity : 0.0
         visible: false
 
         function show() {
